@@ -484,7 +484,7 @@ public abstract class KrpcClient : RpcClient, KrpcEndpoint {
         } catch (e: CancellationException) {
             internalScope.ensureActive()
 
-            failure = ManualCancellationException(e)
+            failure = e
 
             // stop the flow and its coroutine, other flows are not affected
             throw e
