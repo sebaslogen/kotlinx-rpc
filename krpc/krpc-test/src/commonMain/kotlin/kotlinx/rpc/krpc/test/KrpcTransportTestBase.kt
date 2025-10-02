@@ -444,8 +444,8 @@ abstract class KrpcTransportTestBase {
 
     @Test
     fun rpc_continuation_is_called_in_the_correct_scope_and_doesnt_block_other_rpcs() = runTest {
-        if (platform.isJs()) {
-            println("Test is skipped on JS, because it doesn't support multiple threads.")
+        if (platform.isJs() || platform == Platform.WASI) {
+            println("Test is skipped on JS/WASM, because they don't support multiple threads.")
             return@runTest
         }
 
