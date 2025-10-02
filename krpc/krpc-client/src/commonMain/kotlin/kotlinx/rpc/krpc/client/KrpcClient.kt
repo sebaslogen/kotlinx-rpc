@@ -9,8 +9,6 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
@@ -165,12 +163,8 @@ public abstract class KrpcClient : RpcClient, KrpcEndpoint {
                 sendCancellation(CancellationType.ENDPOINT, null, null, closeTransportAfterSending = true)
             }
 
-            @OptIn(DelicateCoroutinesApi::class)
-            @Suppress("detekt.GlobalCoroutineUsage")
-            GlobalScope.launch(CoroutineName("client-request-channels-closing")) {
-                requestChannels.values.forEach { it.close(CancellationException("Client cancelled")) }
-                requestChannels.clear()
-            }
+            requestChannels.values.forEach { it.close(CancellationException("Client cancelled")) }
+            requestChannels.clear()
         }
 
         CoroutineScope(context)
