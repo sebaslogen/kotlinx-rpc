@@ -159,12 +159,20 @@ public abstract class KrpcClient : RpcClient, KrpcEndpoint {
 
             clientCancelled = true
 
-            if (!clientCancelledByServer) {
-                sendCancellation(CancellationType.ENDPOINT, null, null, closeTransportAfterSending = true)
-            }
+            try {
+                if (!clientCancelledByServer) {
+                    sendCancellation(CancellationType.ENDPOINT, null, null, closeTransportAfterSending = true)
+                }
 
-            requestChannels.values.forEach { it.close(CancellationException("Client cancelled")) }
-            requestChannels.clear()
+                requestChannels.values.forEach {
+                    it.close(CancellationException("Client cancelled"))
+                    it.cancel()
+                }
+            } catch (_ : Exception) {
+                // ignore, we are already cancelled
+            } finally {
+                requestChannels.clear()
+            }
         }
 
         CoroutineScope(context)
@@ -327,6 +335,7 @@ public abstract class KrpcClient : RpcClient, KrpcEndpoint {
                 throw e
             } finally {
                 channel.close()
+                channel.cancel()
                 requestChannels.remove(callId)
                 connector.unsubscribeFromMessages(call.descriptor.fqName, callId)
             }
