@@ -6,8 +6,32 @@ message Image {
 
 message RecogniseResult {
   int32 category = 1;
+  Action action = 2;
 }
 
 service ImageRecognizer {
   rpc recognize(Image) returns (RecogniseResult);
 }
+
+// An action to perform when the user interacts with an item.
+message Action {
+  // The type of the action
+  oneof type {
+    PresentAction present_screen = 1;
+    DismissAction dismiss_alert = 2;
+  }
+}
+
+message PresentAction {
+  PresentationStyle presentation_style = 1;
+  string link = 2;
+
+  // The style to present the screen in
+  enum PresentationStyle {
+    MODAL = 0;
+    PUSH = 1;
+    REPLACE = 2;
+  }
+}
+
+message DismissAction {}
